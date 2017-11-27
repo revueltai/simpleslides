@@ -32,13 +32,13 @@ You can define your own CSS classes, or use the default ones as in this example:
 Using the default values  
 ```
 $(document).ready(function() {
-  var slideshow = new SimpleSlides();
+  var simpleSlidesObj = new SimpleSlides();
 });
 ```
 
 Using your own CSS classes:
 ```
-var slideshow = new SimpleSlides({
+var simpleSlidesObj = new SimpleSlides({
   parentNode: '.mySlideshowClass',
   childrenNode: '.mySlideshowClass-item',
   navigationNode: '.mySlideshowClass-nav',
@@ -48,8 +48,11 @@ var slideshow = new SimpleSlides({
 
 3. Start the plugin.
 ```
-slideshow.start();
+simpleSlidesObj.start();
 ```
+
+## Examples
+Click [examples/](here) for the available examples.
 
 ## API
 
@@ -125,25 +128,62 @@ CSS class to append to the active slide.
 #### `start`
 Starts the slideshow.
 ```
-slideshow.start();
+simpleSlidesObj.start();
 ````
 
 #### `stop`
 Stops the slideshow.
 ```
-slideshow.stop();
+simpleSlidesObj.stop();
 ````
 
 #### `pause`
 Pauses the slideshow.
 ```
-slideshow.pause();
+simpleSlidesObjpause();
 ````
 
 #### `resume`
 Resume the slideshow.
 ```
-slideshow.resume();
+simpleSlidesObj.resume();
+````
+
+#### `goToSlide`
+Goes to a specified slide.
+```
+// @slideNumber: Number
+simpleSlidesObj.goToSlide(@slideNumber);
+````
+
+#### `goToPreviousSlide`
+Goes to the previous slide.
+```
+simpleSlidesObj.goToPreviousSlide();
+````
+
+#### `goToNextSlide`
+Goes to the next slide.
+```
+simpleSlidesObj.goToNextSlide();
+````
+
+#### `getCurrentSlide`
+Returns the current slide number.
+```
+simpleSlidesObj.getCurrentSlide();
+````
+
+#### `getPreviousSlide`
+Returns the previous slide number.
+```
+simpleSlidesObj.getPreviousSlide();
+````
+
+#### `getNextSlide`
+Returns the next slide number.
+```
+simpleSlidesObj.getNextSlide();
 ````
 
 #### `on`
@@ -151,7 +191,7 @@ Adds an event handler function for the slideshow.
 ```
 // @eventType: String
 // @callback: Function
-slideshow.on(eventType, callback);
+simpleSlidesObj.on(eventType, callback);
 ````
 
 #### `off`
@@ -159,7 +199,7 @@ Removes an event handler function for the slideshow.
 ```
 // @eventType: String
 // @callback: Function
-slideshow.off(eventType, callback);
+simpleSlidesObj.off(eventType, callback);
 ````
 
 ### Events
@@ -175,6 +215,6 @@ change
 
 Events can be added or removed by using the `on` and `off` methods.
 ```
-slideshow.on(eventType, callback);
-slideshow.off(eventType, callback);
+simpleSlidesObj.on(eventType, callback);
+simpleSlidesObj.off(eventType, callback);
 ```
