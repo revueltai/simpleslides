@@ -4,13 +4,13 @@ A very very simple slideshow, with minimal functionality and easy to integrate.
 
 ## Installation
 
-1. Download *simpleslides.min.js* and add it to your HTML.
+1. Download [*simpleslides.min.js*](lib/simpleslides.min.js) and add it to your HTML.
 2. Link the required files.
 ```
 <script src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
 <script src="lib/simpleslides.min.js"></script>
 ```
-3. Optional: Download *simpleslides.min.css*, if you want to use the built-in CSS styles.
+3. Optional: Download [*simpleslides.min.css*](lib/simpleslides.min.css), if you want to use the built-in CSS styles.
 
 ```
 <link rel="stylesheet" href="lib/stylesheet.min.css">
