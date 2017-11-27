@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SimpleSlides</title>
+    <link rel="stylesheet" href="css/simpleslides.css">
+    <link rel="stylesheet" href="css/examples.css">
+  </head>
+  <body>
+    <h1>SimpleSlides</h1>
+    <p>A very very simple slideshow, with minimal functionality and easy to integrate.</p>
+
+<section class="ui-wrapper">
+
+<div class="ui-example">
+<h3>Example 3: Custom options</h3>
+<p>Playing around with the configuration options.</p>
+<div class="ui-container">
+  <div class="examples" id="example">
+    <div class="example-item">Slide 1</div>
+    <div class="example-item">Slide 2</div>
+    <div class="example-item">Slide 3</div>
+    <div class="example-item">Slide 4</div>
+    <div class="example-nav">
+      <div class="example-nav-item"></div>
+      <div class="example-nav-item"></div>
+      <div class="example-nav-item"></div>
+      <div class="example-nav-item"></div>
+    </div>
+  </div>
+</div>
+<pre>
+<code class="ui-html">&#x3C;div class=&#x22;examples&#x22; id=&#x22;example&#x22;&#x3E;
+  &#x3C;div class=&#x22;example-item&#x22;&#x3E;Slide 1&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;example-item&#x22;&#x3E;Slide 2&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;example-item&#x22;&#x3E;Slide 3&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;example-item&#x22;&#x3E;Slide 4&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;example-nav&#x22;&#x3E;
+    &#x3C;div class=&#x22;example-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+    &#x3C;div class=&#x22;example-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+    &#x3C;div class=&#x22;example-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+    &#x3C;div class=&#x22;example-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+  &#x3C;/div&#x3E;
+&#x3C;/div&#x3E;
+</code>
+<code class="ui-js">var example = new SimpleSlides({
+  parentNode: '#example',
+  childrenNode: '.example-item',
+  navigationNode: '.example-nav',
+  navigationNodeChildren: '.example-nav-item',
+  slides: 4,
+  slide: 3,
+  autoplay: false,
+  timeout: 1000,
+  transitionTime: 100,
+  transitionEasing: 'swing',
+  showNavigation: true,
+  activeClass: 'customActive'
+});
+example.start();
+</code>
+</pre>
+</div>
+
+</section>
+
+    <script src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+    <script src="js/simpleslides.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        var example = new SimpleSlides({
+          parentNode: '#example',
+          childrenNode: '.example-item',
+          navigationNode: '.example-nav',
+          navigationNodeChildren: '.example-nav-item',
+          slides: 4,
+          slide: 3,
+          autoplay: false,
+          timeout: 1000,
+          transitionTime: 100,
+          transitionEasing: 'swing',
+          showNavigation: true,
+          activeClass: 'customActive'
+        });
+        example.start();
+      });
+    </script>
+  </body>
+</html>

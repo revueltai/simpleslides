@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SimpleSlides</title>
+    <link rel="stylesheet" href="css/simpleslides.css">
+    <link rel="stylesheet" href="css/examples.css">
+  </head>
+  <body>
+    <h1>SimpleSlides</h1>
+    <p>A very very simple slideshow, with minimal functionality and easy to integrate.</p>
+
+<section class="ui-wrapper">
+
+<div class="ui-example">
+  <h3>Example 4: Events</h3>
+  <p>Supported Events. Check the browser inspector's console to see the callback responses.</p>
+  <div class="ui-container">
+    <div class="simpleslides" id="example">
+      <div class="simpleslides-item">Slide 1</div>
+      <div class="simpleslides-item">Slide 2</div>
+      <div class="simpleslides-item">Slide 3</div>
+      <div class="simpleslides-item">Slide 4</div>
+      <div class="simpleslides-nav">
+        <div class="simpleslides-nav-item"></div>
+        <div class="simpleslides-nav-item"></div>
+        <div class="simpleslides-nav-item"></div>
+        <div class="simpleslides-nav-item"></div>
+      </div>
+    </div>
+  </div>
+<pre>
+<code class="ui-html">&#x3C;div class=&#x22;examples&#x22; id=&#x22;example&#x22;&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 1&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 2&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 3&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 4&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-nav&#x22;&#x3E;
+    &#x3C;div class=&#x22;simpleslides-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+    &#x3C;div class=&#x22;simpleslides-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+    &#x3C;div class=&#x22;simpleslides-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+    &#x3C;div class=&#x22;simpleslides-nav-item&#x22;&#x3E;&#x3C;/div&#x3E;
+  &#x3C;/div&#x3E;
+&#x3C;/div&#x3E;
+</code>
+<code class="ui-js">var example = new SimpleSlides({
+  showNavigation: true,
+  pauseOnHover: true
+});
+
+example.on('start', function(event) {
+  console.log('Called event start');
+});
+example.on('pause', function(event) {
+  console.log('Called event pause');
+});
+example.on('stop', function(event) {
+  console.log('Called event stop');
+});
+example.on('change', function(event) {
+  console.log('Called event change');
+});
+
+example.start();
+</code>
+</pre>
+</div>
+
+</section>
+
+    <script src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+    <script src="js/simpleslides.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        var example = new SimpleSlides({
+          showNavigation: true,
+          pauseOnHover: true
+        });
+
+        example.on('start', function(event) {
+          console.log('Called event start');
+        });
+        example.on('pause', function(event) {
+          console.log('Called event pause');
+        });
+        example.on('stop', function(event) {
+          console.log('Called event stop');
+        });
+        example.on('change', function(event) {
+          console.log('Called event change');
+        });
+
+        example.start();
+      });
+    </script>
+  </body>
+</html>

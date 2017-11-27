@@ -5,24 +5,29 @@
  * @license The MIT License (MIT)
  */
 var SimpleSlides = (function() {
-  var loop, hasEvent, triggerEvent, getEvents, exists, onError, onMouseOver, onMouseOut, onClickNavItem;
-  var state = '';
+  var loop, triggerEvent, exists, setState, onError, onMouseEnter, onMouseLeave, onClickNavItem;
+  var states = {
+    error: 'error',
+    started: 'started',
+    stopped: 'stopped'
+  }
+  var state = states.idle;
   var eventListeners = {};
   var events = {
     start: 'start',
     stop: 'stop',
     pause: 'pause',
     resume: 'resume',
-    loop: 'loop',
-    change: 'change'
+    change: 'change',
+    error: 'error'
   };
 
   // Constructor
   function SimpleSlides(options) {
     this.options = $.extend({}, SimpleSlides.defaults, options);
-    this.on(events.error, $.proxy(onError, this));
-
     this.nodePath = this.options.parentNode + ' ' + this.options.childrenNode;
+
+    this.on(events.error, $.proxy(onError, this));
 
     if (!exists(this.options.parentNode)) {
       triggerEvent(events.error, this, 'Parent node is undefined');
@@ -48,9 +53,8 @@ var SimpleSlides = (function() {
       triggerEvent(events.error, this, 'slides parameter is undefined.');
     }
 
-    if (state !== 'error') {
+    if (state !== states.error) {
       this.initialize();
-      getEvents();
     }
   }
 
@@ -74,7 +78,6 @@ var SimpleSlides = (function() {
   SimpleSlides.prototype = {
 
     initialize: function() {
-      this.state           = 'ready';
       this.timerId         = null;
       this.currentSlideEl  = null;
       this.previousSlideEl = null;
@@ -88,25 +91,15 @@ var SimpleSlides = (function() {
       }
 
       if (this.options.pauseOnHover) {
-        $(this.options.parentNode).on('mouseover', $.proxy(onMouseOver, this));
-        $(this.options.parentNode).on('mouseout', $.proxy(onMouseOut, this));
-      }
-    },
-
-    destroy: function() {
-      this.on(events.error, $.proxy(onError, this));
-      if (this.options.showNavigation) {
-        $(this.navigationNodePath).off('mouseover', $.proxy(onClickNavItem, this));
-      }
-      if (this.options.pauseOnHover) {
-        $(this.options.parentNode).off('mouseover', $.proxy(onMouseOver, this));
-        $(this.options.parentNode).off('mouseout', $.proxy(onMouseOut, this));
+        $(this.options.parentNode).on('mouseenter', $.proxy(onMouseEnter, this));
+        $(this.options.parentNode).on('mouseleave', $.proxy(onMouseLeave, this));
       }
     },
 
     start: function() {
-      if (this.state !== 'error') {
+      if (state !== states.error) {
         triggerEvent(events.start);
+        setState(states.started);
         this.resume(1, 1);
       }
     },
@@ -115,6 +108,7 @@ var SimpleSlides = (function() {
       triggerEvent(events.stop);
       clearTimeout(this.timerId);
       this.destroy();
+      setState(states.stopped);
     },
 
     pause: function() {
@@ -127,6 +121,23 @@ var SimpleSlides = (function() {
       this.timerId = setTimeout($.proxy(loop, this, transitionTime || this.options.transitionTime), time || this.options.timeout);
     },
 
+    destroy: function() {
+      this.off(events.error);
+      this.off(events.pause);
+      this.off(events.resume);
+      this.off(events.stop);
+      this.off(events.change);
+      this.off(events.loop);
+
+      if (this.options.showNavigation) {
+        $(this.navigationNodePath).off('mouseenter', $.proxy(onClickNavItem, this));
+      }
+      if (this.options.pauseOnHover) {
+        $(this.options.parentNode).off('mouseenter', $.proxy(onMouseEnter, this));
+        $(this.options.parentNode).off('mouseleave', $.proxy(onMouseLeave, this));
+      }
+    },
+
     goToSlide: function(slideNumber) {
       if (slideNumber) {
         this.currentSlide = slideNumber;
@@ -134,40 +145,55 @@ var SimpleSlides = (function() {
       }
     },
 
-    goToPrevSlide: function() {
-      this.currentSlide = (this.currentSlide - 1 > 0) ? --this.currentSlide : this.options.slides;
+    goToPreviousSlide: function() {
+      this.currentSlide = this.getPreviousSlide();
+      console.log(this.currentSlide);
       this.resume(1);
     },
 
     goToNextSlide: function() {
-      this.currentSlide = (this.currentSlide + 1 <= this.options.slides) ? ++this.currentSlide: 1;
+      this.currentSlide = this.getNextSlide();
       this.resume(1);
     },
 
+    getCurrentSlide: function() {
+      return this.currentSlide;
+    },
+
+    getNextSlide: function() {
+      return this.currentSlide + 1 <= this.options.slides ? this.currentSlide + 1 : 1;
+    },
+
+    getPreviousSlide: function() {
+      return this.currentSlide - 1 > 0 ? this.currentSlide - 1 : this.options.slides;
+    },
+
     on: function(type, callback, scope) {
-      var args      = [];
-      var numOfArgs = arguments.length;
-      for (var i = 0; i < numOfArgs; i++) {
-        args.push(arguments[i]);
-      }
-      args = args.length > 3 ? args.splice(3, args.length - 1) : [];
-      if (typeof eventListeners[type] != 'undefined') {
-        eventListeners[type].push({
-          scope: scope,
-          callback: callback,
-          args: args
-        });
-      } else {
-        eventListeners[type] = [{
-          scope: scope,
-          callback: callback,
-          args: args
-        }];
+      if (type in events) {
+        var args      = [];
+        var numOfArgs = arguments.length;
+        for (var i = 0; i < numOfArgs; i++) {
+          args.push(arguments[i]);
+        }
+        args = args.length > 3 ? args.splice(3, args.length - 1) : [];
+        if (typeof eventListeners[type] != 'undefined') {
+          eventListeners[type].push({
+            scope: scope,
+            callback: callback,
+            args: args
+          });
+        } else {
+          eventListeners[type] = [{
+            scope: scope,
+            callback: callback,
+            args: args
+          }];
+        }
       }
     },
 
     off: function(type, callback, scope) {
-      if (typeof eventListeners[type] != 'undefined') {
+      if (type in events && typeof eventListeners[type] != 'undefined') {
         var numOfCallbacks = eventListeners[type].length;
         var newArray = [];
         for (var i = 0; i < numOfCallbacks; i++) {
@@ -201,7 +227,7 @@ var SimpleSlides = (function() {
 
     this.previousSlideEl.show();
     this.currentSlideEl.fadeIn(transitionTime, this.options.transitionEasing, $.proxy(function() {
-      triggerEvent(events.loop);
+      triggerEvent(events.change);
       if (this.options.autoplay) {
         this.resume();
       }
@@ -212,72 +238,47 @@ var SimpleSlides = (function() {
     return !!$(htmlNode).length;
   }
 
-  hasEvent = function(type, callback, scope) {
-    if (typeof this.listeners[type] != 'undefined') {
-      var numOfCallbacks = this.listeners[type].length;
-      if (callback === undefined && scope === undefined) {
-        return numOfCallbacks > 0;
-      }
-      for (var i = 0; i < numOfCallbacks; i++) {
-        var listener = this.listeners[type][i];
-        if ((scope ? listener.scope == scope : true) && listener.callback == callback) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
   triggerEvent = function(type, target) {
-    var event = {
-      type: type,
-      target: target
-    };
-    var args      = [];
-    var numOfArgs = arguments.length;
-    for (var i = 0; i < numOfArgs; i++) {
-      args.push(arguments[i]);
-    };
-    args = args.length > 2 ? args.splice(2, args.length - 1) : [];
-    args = [event].concat(args);
+    if (type in events) {
+      var args      = [];
+      var numOfArgs = arguments.length;
+      var event = {
+        type: type,
+        target: target
+      };
 
-    if (typeof eventListeners[type] != 'undefined') {
-      var listeners = eventListeners[type].slice();
-      var numOfCallbacks = listeners.length;
-      for (var i = 0; i < numOfCallbacks; i++) {
-        var listener = listeners[i];
-        if (listener && listener.callback) {
-          var concatArgs = args.concat(listener.args);
-          listener.callback.apply(listener.scope, concatArgs);
+      for (var i = 0; i < numOfArgs; i++) {
+        args.push(arguments[i]);
+      };
+      args = args.length > 2 ? args.splice(2, args.length - 1) : [];
+      args = [event].concat(args);
+
+      if (typeof eventListeners[type] != 'undefined') {
+        var listeners = eventListeners[type].slice();
+        var numOfCallbacks = listeners.length;
+        for (var i = 0; i < numOfCallbacks; i++) {
+          var listener = listeners[i];
+          if (listener && listener.callback) {
+            var concatArgs = args.concat(listener.args);
+            listener.callback.apply(listener.scope, concatArgs);
+          }
         }
       }
     }
   }
 
-  getEvents = function() {
-    var str = '';
-    for (var type in this.listeners) {
-      var numOfCallbacks = this.listeners[type].length;
-      for (var i = 0; i < numOfCallbacks; i++) {
-        var listener = this.listeners[type][i];
-        str += listener.scope && listener.scope.className ? listener.scope.className : 'anonymous';
-        str += " listen for '" + type + "'\n";
-      }
+  setState = function(newState) {
+    if (newState in states) {
+      state = newState;
     }
-    return str;
   }
 
-  onError = function(event, message) {
-    state = 'error';
-    console.error('SimpleSlides error: ' + message);
-  }
-
-  onMouseOver = function(event) {
+  onMouseEnter = function(event) {
     event.preventDefault();
     this.pause();
   }
 
-  onMouseOut = function(event) {
+  onMouseLeave = function(event) {
     event.preventDefault();
     this.resume();
   }
@@ -287,6 +288,11 @@ var SimpleSlides = (function() {
     triggerEvent(events.change);
     this.currentSlide = $(event.currentTarget).index() + 1;
     this.resume(1);
+  }
+
+  onError = function(event, message) {
+    setState(states.error);
+    console.error('SimpleSlides error: ' + message);
   }
 
   return SimpleSlides;

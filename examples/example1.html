@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>SimpleSlides</title>
+    <link rel="stylesheet" href="css/simpleslides.css">
+    <link rel="stylesheet" href="css/examples.css">
+  </head>
+  <body>
+    <h1>SimpleSlides</h1>
+    <p>A very very simple slideshow, with minimal functionality and easy to integrate.</p>
+
+<section class="ui-wrapper">
+
+<div class="ui-example">
+<h3>Example 1: Default usage</h3>
+<p>Default CSS and Plugin options.</p>
+<div class="ui-container">
+  <div class="simpleslides">
+    <div class="simpleslides-item">Slide 1</div>
+    <div class="simpleslides-item">Slide 2</div>
+    <div class="simpleslides-item">Slide 3</div>
+    <div class="simpleslides-item">Slide 4</div>
+  </div>
+</div>
+<pre>
+<code class="ui-html">&#x3C;div class=&#x22;simpleslides&#x22;&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 1&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 2&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 3&#x3C;/div&#x3E;
+  &#x3C;div class=&#x22;simpleslides-item&#x22;&#x3E;Slide 4&#x3C;/div&#x3E;
+&#x3C;/div&#x3E;
+</code>
+<code class="ui-js">var example = new SimpleSlides();
+example.start();
+</code>
+</pre>
+</div>
+
+</section>
+
+    <script src="https://cdn.jsdelivr.net/jquery/2.1.3/jquery.min.js"></script>
+    <script src="js/simpleslides.js"></script>
+
+    <script>
+      $(document).ready(function() {
+        var example = new SimpleSlides();
+        example.start();
+      });
+    </script>
+  </body>
+</html>
