@@ -52,7 +52,7 @@ simpleSlidesObj.start();
 ```
 
 ## Examples
-Click [examples/](here) for the available examples.
+Click [here](examples/) for the available examples.
 
 ## API
 
