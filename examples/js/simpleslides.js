@@ -5,12 +5,17 @@
  * @license The MIT License (MIT)
  */
 var SimpleSlides = (function() {
-  var loop, triggerEvent, exists, setState, onError, onMouseEnter, onMouseLeave, onClickNavItem;
+
+  'use-strict';
+
+  var loop, addEventListener, removeEventListener, dispatchEvent, exists, setState, onError, onMouseEnter, onMouseLeave, onClickNavItem;
+  var timerId = null;
   var states = {
     error: 'error',
     started: 'started',
-    stopped: 'stopped'
-  }
+    stopped: 'stopped',
+    destroyed: 'destroyed'
+  };
   var state = states.idle;
   var eventListeners = {};
   var events = {
@@ -19,6 +24,7 @@ var SimpleSlides = (function() {
     pause: 'pause',
     resume: 'resume',
     change: 'change',
+    destroy: 'destroy',
     error: 'error'
   };
 
@@ -27,14 +33,20 @@ var SimpleSlides = (function() {
     this.options = $.extend({}, SimpleSlides.defaults, options);
     this.nodePath = this.options.parentNode + ' ' + this.options.childrenNode;
 
-    this.on(events.error, $.proxy(onError, this));
+    addEventListener(events.error, $.proxy(onError, this));
+    addEventListener(events.start, this.options.onStart);
+    addEventListener(events.stop, this.options.onStop);
+    addEventListener(events.pause, this.options.onPause);
+    addEventListener(events.change, this.options.onChange);
+    addEventListener(events.resume, this.options.onResume);
+    addEventListener(events.destroy, this.options.onDestroy);
 
     if (!exists(this.options.parentNode)) {
-      triggerEvent(events.error, this, 'Parent node is undefined');
+      dispatchEvent(events.error, this, 'Parent node is undefined');
     }
 
     if (!exists(this.nodePath)) {
-      triggerEvent(events.error, this, 'Children nodes do not exist');
+      dispatchEvent(events.error, this, 'Children nodes do not exist');
     } else {
       this.options.slides = $(this.nodePath).length;
     }
@@ -42,19 +54,34 @@ var SimpleSlides = (function() {
     if (this.options.showNavigation) {
       this.navigationNodePath = this.options.parentNode + ' ' + this.options.navigationNode + ' ' + this.options.navigationNodeChildren;
       if (!exists(this.navigationNodePath)) {
-        triggerEvent(events.error, this, 'Navigation node or navigation childs do not exists');
+        dispatchEvent(events.error, this, 'Navigation node or navigation childs do not exists');
       }
       if ($(this.navigationNodePath).length !== this.options.slides) {
-        triggerEvent(events.error, this, 'Navigation children count does not match slides length');
+        dispatchEvent(events.error, this, 'Navigation children count does not match slides length');
       }
     }
 
     if (this.options.slides <= 0) {
-      triggerEvent(events.error, this, 'slides parameter is undefined.');
+      dispatchEvent(events.error, this, 'slides parameter is undefined.');
     }
 
     if (state !== states.error) {
-      this.initialize();
+      timerId              = null;
+      this.currentSlideEl  = null;
+      this.previousSlideEl = null;
+      this.currentSlide    = this.options.slide || 1;
+      this.previousSlide   = (this.currentSlide - 1 === 0) ? this.options.slides : this.currentSlide - 1;
+
+      $(this.nodePath).removeClass(this.options.activeClass).hide();
+
+      if (this.options.showNavigation) {
+        $(this.navigationNodePath).on('click', $.proxy(onClickNavItem, this));
+      }
+
+      if (this.options.pauseOnHover) {
+        $(this.options.parentNode).on('mouseenter', $.proxy(onMouseEnter, this));
+        $(this.options.parentNode).on('mouseleave', $.proxy(onMouseLeave, this));
+      }
     }
   }
 
@@ -71,71 +98,66 @@ var SimpleSlides = (function() {
     transitionEasing: 'linear',
     pauseOnHover: false,
     showNavigation: false,
-    activeClass: 'active'
+    activeClass: 'active',
+    onStart: function() {},
+    onPause: function() {},
+    onStop: function() {},
+    onChange: function() {},
+    onResume: function() {},
+    onDestroy: function() {},
   };
 
   // Public Methods
   SimpleSlides.prototype = {
-
-    initialize: function() {
-      this.timerId         = null;
-      this.currentSlideEl  = null;
-      this.previousSlideEl = null;
-      this.currentSlide    = this.options.slide || 1;
-      this.previousSlide   = (this.currentSlide - 1 === 0) ? this.options.slides : this.currentSlide - 1;
-
-      $(this.nodePath).removeClass(this.options.activeClass).hide();
-
-      if (this.options.showNavigation) {
-        $(this.navigationNodePath).on('click', $.proxy(onClickNavItem, this));
-      }
-
-      if (this.options.pauseOnHover) {
-        $(this.options.parentNode).on('mouseenter', $.proxy(onMouseEnter, this));
-        $(this.options.parentNode).on('mouseleave', $.proxy(onMouseLeave, this));
-      }
-    },
-
     start: function() {
       if (state !== states.error) {
-        triggerEvent(events.start);
+        dispatchEvent(events.start);
         setState(states.started);
-        this.resume(1, 1);
+        this.play(1, 1);
       }
     },
 
     stop: function() {
-      triggerEvent(events.stop);
-      clearTimeout(this.timerId);
-      this.destroy();
+      dispatchEvent(events.stop);
+      clearTimeout(timerId);
       setState(states.stopped);
     },
 
+    play: function(time, transitionTime) {
+      clearTimeout(timerId);
+      timerId = setTimeout($.proxy(loop, this, transitionTime || this.options.transitionTime), time || this.options.timeout);
+    },
+
     pause: function() {
-      clearTimeout(this.timerId);
-      triggerEvent(events.pause);
+      clearTimeout(timerId);
+      dispatchEvent(events.pause);
     },
 
     resume: function(time, transitionTime) {
-      clearTimeout(this.timerId);
-      this.timerId = setTimeout($.proxy(loop, this, transitionTime || this.options.transitionTime), time || this.options.timeout);
+      dispatchEvent(events.resume);
+      this.play(time, transitionTime);
     },
 
     destroy: function() {
-      this.off(events.error);
-      this.off(events.pause);
-      this.off(events.resume);
-      this.off(events.stop);
-      this.off(events.change);
-      this.off(events.loop);
+      dispatchEvent(events.destroy);
+
+      removeEventListener(events.error, $.proxy(onError, this));
+      removeEventListener(events.pause, this.options.onPause);
+      removeEventListener(events.resume, this.options.onResume);
+      removeEventListener(events.stop, this.options.onStop);
+      removeEventListener(events.change, this.options.onChange);
+      removeEventListener(events.destroy, this.options.onDestroy);
 
       if (this.options.showNavigation) {
-        $(this.navigationNodePath).off('mouseenter', $.proxy(onClickNavItem, this));
+        $(this.navigationNodePath).off('click', $.proxy(onClickNavItem, this));
       }
       if (this.options.pauseOnHover) {
         $(this.options.parentNode).off('mouseenter', $.proxy(onMouseEnter, this));
         $(this.options.parentNode).off('mouseleave', $.proxy(onMouseLeave, this));
       }
+
+      clearTimeout(timerId);
+      setState(states.destroyed);
     },
 
     goToSlide: function(slideNumber) {
@@ -147,7 +169,6 @@ var SimpleSlides = (function() {
 
     goToPreviousSlide: function() {
       this.currentSlide = this.getPreviousSlide();
-      console.log(this.currentSlide);
       this.resume(1);
     },
 
@@ -166,46 +187,6 @@ var SimpleSlides = (function() {
 
     getPreviousSlide: function() {
       return this.currentSlide - 1 > 0 ? this.currentSlide - 1 : this.options.slides;
-    },
-
-    on: function(type, callback, scope) {
-      if (type in events) {
-        var args      = [];
-        var numOfArgs = arguments.length;
-        for (var i = 0; i < numOfArgs; i++) {
-          args.push(arguments[i]);
-        }
-        args = args.length > 3 ? args.splice(3, args.length - 1) : [];
-        if (typeof eventListeners[type] != 'undefined') {
-          eventListeners[type].push({
-            scope: scope,
-            callback: callback,
-            args: args
-          });
-        } else {
-          eventListeners[type] = [{
-            scope: scope,
-            callback: callback,
-            args: args
-          }];
-        }
-      }
-    },
-
-    off: function(type, callback, scope) {
-      if (type in events && typeof eventListeners[type] != 'undefined') {
-        var numOfCallbacks = eventListeners[type].length;
-        var newArray = [];
-        for (var i = 0; i < numOfCallbacks; i++) {
-          var listener = eventListeners[type][i];
-          if (listener.scope == scope && listener.callback == callback) {
-
-          } else {
-            newArray.push(listener);
-          }
-        }
-        eventListeners[type] = newArray;
-      }
     }
   }
 
@@ -219,17 +200,17 @@ var SimpleSlides = (function() {
       $(this.navigationNodePath + ':nth-child(' + this.currentSlide + ')').addClass(this.options.activeClass);
     }
 
-    this.currentSlide    = (this.currentSlide < this.options.slides) ? this.currentSlide + 1 : 1;
-    this.previousSlide   = (this.currentSlide - 1 === 0) ? this.options.slides : this.currentSlide - 1;
+    this.currentSlide    = this.getNextSlide();
+    this.previousSlide   = this.getPreviousSlide();
 
     $(this.nodePath).removeClass(this.options.activeClass).hide();
     this.currentSlideEl.addClass(this.options.activeClass);
 
     this.previousSlideEl.show();
     this.currentSlideEl.fadeIn(transitionTime, this.options.transitionEasing, $.proxy(function() {
-      triggerEvent(events.change);
-      if (this.options.autoplay) {
-        this.resume();
+      dispatchEvent(events.change);
+      if (this.options.autoplay && state !== states.destroyed) {
+        this.play();
       }
     }, this));
   }
@@ -238,7 +219,7 @@ var SimpleSlides = (function() {
     return !!$(htmlNode).length;
   }
 
-  triggerEvent = function(type, target) {
+  dispatchEvent = function(type, target) {
     if (type in events) {
       var args      = [];
       var numOfArgs = arguments.length;
@@ -267,6 +248,46 @@ var SimpleSlides = (function() {
     }
   }
 
+  addEventListener = function(type, callback, scope) {
+    if (type in events) {
+      var args      = [];
+      var numOfArgs = arguments.length;
+      for (var i = 0; i < numOfArgs; i++) {
+        args.push(arguments[i]);
+      }
+      args = args.length > 3 ? args.splice(3, args.length - 1) : [];
+      if (typeof eventListeners[type] != 'undefined') {
+        eventListeners[type].push({
+          scope: scope,
+          callback: callback,
+          args: args
+        });
+      } else {
+        eventListeners[type] = [{
+          scope: scope,
+          callback: callback,
+          args: args
+        }];
+      }
+    }
+  }
+
+  removeEventListener = function(type, callback, scope) {
+    if (type in events && typeof eventListeners[type] != 'undefined') {
+      var numOfCallbacks = eventListeners[type].length;
+      var newArray = [];
+      for (var i = 0; i < numOfCallbacks; i++) {
+        var listener = eventListeners[type][i];
+        if (listener.scope == scope && listener.callback == callback) {
+
+        } else {
+          newArray.push(listener);
+        }
+      }
+      eventListeners[type] = newArray;
+    }
+  }
+
   setState = function(newState) {
     if (newState in states) {
       state = newState;
@@ -280,14 +301,14 @@ var SimpleSlides = (function() {
 
   onMouseLeave = function(event) {
     event.preventDefault();
-    this.resume();
+    this.play();
   }
 
   onClickNavItem = function(event) {
     event.preventDefault();
-    triggerEvent(events.change);
+    dispatchEvent(events.change);
     this.currentSlide = $(event.currentTarget).index() + 1;
-    this.resume(1);
+    this.play(1);
   }
 
   onError = function(event, message) {

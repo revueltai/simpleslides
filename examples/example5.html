@@ -45,17 +45,16 @@
 </code>
 <code class="ui-js">var example = new SimpleSlides({
   slide: 4,
-  showNavigation: true
+  timeout: 500,
+  showNavigation: true,
+  onStart: function() {
+    example.goToNextSlide();
+    console.log('Current slide is: ' + example.getCurrentSlide());
+  },
+  onChange: function() {
+    console.log('Current slide is: ' + example.getCurrentSlide() + '. Previous slide is: ' + example.getPreviousSlide() + '. Next slide is: ' + example.getNextSlide());
+  }
 });
-
-example.on('start', function(event) {
-  example.goToNextSlide();
-});
-
-example.on('change', function() {
-  console.log('Current slide is: ' + example.getCurrentSlide());
-});
-
 example.start();
 </code>
 </pre>
@@ -70,18 +69,16 @@ example.start();
       $(document).ready(function() {
         var example = new SimpleSlides({
           slide: 4,
-          showNavigation: true
+          timeout: 500,
+          showNavigation: true,
+          onStart: function() {
+            example.goToNextSlide();
+            console.log('Current slide is: ' + example.getCurrentSlide());
+          },
+          onChange: function() {
+            console.log('Current slide is: ' + example.getCurrentSlide() + '. Previous slide was: ' + example.getPreviousSlide() + '. Next slide is: ' + example.getNextSlide());
+          }
         });
-
-        example.on('start', function(event) {
-          example.goToNextSlide();
-          console.log('Current slide is: ' + example.getCurrentSlide());
-        });
-
-        example.on('change', function() {
-          console.log('Current slide is: ' + example.getCurrentSlide());
-        });
-
         example.start();
       });
     </script>

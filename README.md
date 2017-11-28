@@ -123,6 +123,37 @@ Type: `String`
 Default: `active`  
 CSS class to append to the active slide.
 
+#### `onStart`
+Type: `Function`  
+Default: `function`  
+Callback function for the start event.
+
+#### `onStop`
+Type: `Function`  
+Default: `function`  
+Callback function for the stop event.
+
+#### `onPause`
+Type: `Function`  
+Default: `function`  
+Callback function for the pause event.
+
+#### `onResume`
+Type: `Function`  
+Default: `function`  
+Callback function for the resume event.
+
+#### `onChange`
+Type: `Function`  
+Default: `function`  
+Callback function for the slide change event.
+
+#### `onDestroy`
+Type: `Function`  
+Default: `function`  
+Callback function for the destroy event.  
+
+
 ### Public Methods
 
 #### `start`
@@ -147,6 +178,12 @@ simpleSlidesObjpause();
 Resume the slideshow.
 ```
 simpleSlidesObj.resume();
+````
+
+#### `destroy`
+Destroys the slideshow.
+```
+simpleSlidesObj.destroy();
 ````
 
 #### `goToSlide`
@@ -186,22 +223,6 @@ Returns the next slide number.
 simpleSlidesObj.getNextSlide();
 ````
 
-#### `on`
-Adds an event handler function for the slideshow.
-```
-// @eventType: String
-// @callback: Function
-simpleSlidesObj.on(eventType, callback);
-````
-
-#### `off`
-Removes an event handler function for the slideshow.
-```
-// @eventType: String
-// @callback: Function
-simpleSlidesObj.off(eventType, callback);
-````
-
 ### Events
 The plugin offers support for the following events:
 ```
@@ -209,12 +230,14 @@ start
 stop
 pause
 resume
-loop
 change
+destroy
 ```
 
-Events can be added or removed by using the `on` and `off` methods.
+Events can be instanced as part of the `options`.
 ```
-simpleSlidesObj.on(eventType, callback);
-simpleSlidesObj.off(eventType, callback);
+var simpleSlidesObj = new SimpleSlides({
+	...
+  eventType: callback
+});
 ```

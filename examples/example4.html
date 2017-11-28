@@ -45,23 +45,37 @@
 </code>
 <code class="ui-js">var example = new SimpleSlides({
   showNavigation: true,
-  pauseOnHover: true
-});
-
-example.on('start', function(event) {
-  console.log('Called event start');
-});
-example.on('pause', function(event) {
-  console.log('Called event pause');
-});
-example.on('stop', function(event) {
-  console.log('Called event stop');
-});
-example.on('change', function(event) {
-  console.log('Called event change');
+  pauseOnHover: true,
+  onStart: function() {
+    console.log('Called event start');
+  },
+  onPause: function() {
+    console.log('Called event pause');
+  },
+  onStop: function() {
+    console.log('Called event stop');
+  },
+  onResume: function() {
+    console.log('Called event resume');
+  },
+  onChange: function() {
+    console.log('Called event change');
+  },
+  onDestroy: function() {
+    console.log('Called event destroy');
+  }
 });
 
 example.start();
+
+setTimeout(function() {
+  example.stop();
+  example.resume();
+}, 3000);
+
+setTimeout(function() {
+  example.destroy();
+}, 10000);
 </code>
 </pre>
 </div>
@@ -75,23 +89,37 @@ example.start();
       $(document).ready(function() {
         var example = new SimpleSlides({
           showNavigation: true,
-          pauseOnHover: true
-        });
-
-        example.on('start', function(event) {
-          console.log('Called event start');
-        });
-        example.on('pause', function(event) {
-          console.log('Called event pause');
-        });
-        example.on('stop', function(event) {
-          console.log('Called event stop');
-        });
-        example.on('change', function(event) {
-          console.log('Called event change');
+          pauseOnHover: true,
+          onStart: function() {
+            console.log('Called event start');
+          },
+          onPause: function() {
+            console.log('Called event pause');
+          },
+          onStop: function() {
+            console.log('Called event stop');
+          },
+          onResume: function() {
+            console.log('Called event resume');
+          },
+          onChange: function() {
+            console.log('Called event change');
+          },
+          onDestroy: function() {
+            console.log('Called event destroy');
+          }
         });
 
         example.start();
+
+        setTimeout(function() {
+          example.stop();
+          example.resume();
+        }, 3000);
+
+        setTimeout(function() {
+          example.destroy();
+        }, 10000);
       });
     </script>
   </body>
