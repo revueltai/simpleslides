@@ -22,21 +22,21 @@ A very very simple slideshow, with minimal functionality and easy to integrate.
 You can define your own CSS classes, or use the default ones as in this example:
 ```
 <div class="simpleslides">
-	<div class="simpleslides-item">Slide 1</div>
-	<div class="simpleslides-item">Slide 2</div>
-	<div class="simpleslides-item">Slide 3</div>
+   <div class="simpleslides-item">Slide 1</div>
+   <div class="simpleslides-item">Slide 2</div>
+   <div class="simpleslides-item">Slide 3</div>
 </div>
 ```
 
 2. Initialize the plugin.  
-Using the default values  
+Using the default CSS & DOM values.
 ```
 $(document).ready(function() {
   var simpleSlidesObj = new SimpleSlides();
 });
 ```
 
-Using your own CSS classes:
+Using your own DOM values:
 ```
 var simpleSlidesObj = new SimpleSlides({
   parentNode: '.mySlideshowClass',
@@ -237,7 +237,7 @@ destroy
 Events can be instanced as part of the `options`.
 ```
 var simpleSlidesObj = new SimpleSlides({
-	...
+  ...
   eventType: callback
 });
 ```
